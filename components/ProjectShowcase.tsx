@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, useScroll, useTransform, useInView } from 'framer-motion';
 import { projects } from '@/data/projects';
@@ -9,7 +9,14 @@ import { FaArrowRight, FaExternalLinkAlt } from 'react-icons/fa';
 function ProjectCard({ project, index }: { project: typeof projects[0]; index: number }) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: '-60px' });
-  const isOdd = index % 2 !== 0;
+  const [isMobile, setIsMobile] = useState(true); // default true to prevent hydration mismatch flashes of weird 3d
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
+    checkMobile(); // Check on mount
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -32,7 +39,7 @@ function ProjectCard({ project, index }: { project: typeof projects[0]; index: n
       {/* Glow accent behind image */}
       <motion.div
         className="pcard__glow"
-        style={{ y: imgY, background: `radial-gradient(ellipse at center, ${project.color}10 0%, transparent 70%)` }}
+        style={isMobile ? { background: `radial-gradient(ellipse at center, ${project.color}10 0%, transparent 70%)` } : { y: imgY, background: `radial-gradient(ellipse at center, ${project.color}10 0%, transparent 70%)` }}
       />
 
       {/* Perspective image wrapper */}
@@ -40,7 +47,7 @@ function ProjectCard({ project, index }: { project: typeof projects[0]; index: n
         <Link href={`/projetos/${project.slug}`} style={{ display: 'block', cursor: 'none' }}>
           <motion.div 
             className="pcard__screen" 
-            style={{ y: imgY, rotateX, scale }}
+            style={isMobile ? {} : { y: imgY, rotateX, scale }}
           >
             <div
               className="pcard__screen-image"
@@ -56,7 +63,7 @@ function ProjectCard({ project, index }: { project: typeof projects[0]; index: n
       {/* Info card — centered below */}
       <motion.div
         className="pcard__info-card"
-        style={{ y: cardY }}
+        style={isMobile ? {} : { y: cardY }}
         initial={{ opacity: 0, y: 30 }}
         animate={isInView ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.7, delay: 0.25 }}
