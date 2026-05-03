@@ -55,7 +55,7 @@ export const projects: Project[] = [
     fullDescription:
       'O Veículos RJ é um marketplace automotivo multiloja de alta performance, construído com Next.js, Tailwind CSS e Supabase. Focado na geração de leads direta via WhatsApp, a plataforma oferece uma experiência otimizada para lojistas e compradores, com gestão de estoque manual ou integrada via AutoCerto, garantindo rapidez e segurança nas negociações de veículos.',
     url: 'https://www.veiculosrj.com/',
-    tags: ['Next.js', 'Supabase', 'Marketplace', 'Automotivo'],
+    tags: ['Next.js', 'Supabase', 'Marketplace'],
     color: '#f3f3f3ff',
     layoutVariant: 'B',
     images: {

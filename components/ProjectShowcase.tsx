@@ -371,6 +371,20 @@ export default function ProjectShowcase() {
             padding: 14px 18px;
           }
 
+          .pcard__title {
+            font-size: 1rem;
+          }
+
+          .pcard__tag {
+            font-size: 0.6rem;
+            padding: 3px 8px;
+          }
+
+          .pcard__btn {
+            font-size: 0.75rem;
+            padding: 10px 14px;
+          }
+
           .pcard__glow {
             display: none;
           }

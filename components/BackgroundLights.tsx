@@ -47,7 +47,6 @@ export default function BackgroundLights() {
             rgba(1, 205, 174, 0.03) 35%,
             transparent 70%
           );
-          filter: blur(80px);
           animation: bgFloat1 20s ease-in-out infinite;
         }
 
@@ -63,7 +62,6 @@ export default function BackgroundLights() {
             rgba(0, 229, 195, 0.02) 40%,
             transparent 70%
           );
-          filter: blur(100px);
           animation: bgFloat2 25s ease-in-out infinite;
         }
 
@@ -79,7 +77,6 @@ export default function BackgroundLights() {
             rgba(1, 205, 174, 0.015) 45%,
             transparent 70%
           );
-          filter: blur(90px);
           animation: bgFloat3 22s ease-in-out infinite;
         }
 
@@ -95,7 +92,6 @@ export default function BackgroundLights() {
             rgba(0, 229, 195, 0.025) 35%,
             transparent 70%
           );
-          filter: blur(110px);
           animation: bgFloat1 28s ease-in-out infinite reverse;
         }
 
@@ -111,7 +107,6 @@ export default function BackgroundLights() {
             rgba(1, 205, 174, 0.015) 40%,
             transparent 70%
           );
-          filter: blur(100px);
           animation: bgFloat2 18s ease-in-out infinite reverse;
         }
 
@@ -127,7 +122,6 @@ export default function BackgroundLights() {
             rgba(1, 205, 174, 0.015) 45%,
             transparent 70%
           );
-          filter: blur(70px);
           animation: bgFloat3 16s ease-in-out infinite;
         }
 
@@ -143,7 +137,6 @@ export default function BackgroundLights() {
             rgba(0, 229, 195, 0.012) 40%,
             transparent 70%
           );
-          filter: blur(90px);
           animation: bgFloat1 24s ease-in-out infinite;
         }
 
