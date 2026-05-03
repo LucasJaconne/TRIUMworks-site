@@ -13,6 +13,7 @@ export default function Hero() {
   const y = useTransform(scrollYProgress, [0, 1], [0, 200]);
   const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
   const scale = useTransform(scrollYProgress, [0, 1], [1, 0.9]);
+  const scrollIndicatorOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
 
   const scrollDown = () => {
     const el = document.getElementById('projetos');
@@ -71,7 +72,7 @@ export default function Hero() {
           <a href="#projetos" className="btn-primary" onClick={(e) => { e.preventDefault(); scrollDown(); }}>
             Ver projetos
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M4 6L8 10L12 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M4 6L8 10L12 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </a>
           <a href="/contato" className="btn-outline">Fale conosco</a>
@@ -83,6 +84,7 @@ export default function Hero() {
         className="hero__scroll-indicator"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
+        style={{ opacity: scrollIndicatorOpacity }}
         transition={{ delay: 1.2, duration: 0.6 }}
         onClick={scrollDown}
       >
@@ -161,6 +163,9 @@ export default function Hero() {
             linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
             linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
           background-size: 80px 80px;
+          background-attachment: fixed;
+          mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
+          -webkit-mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
         }
 
         .hero__content {

@@ -45,7 +45,7 @@ export default function ContatoPage() {
         <div className="ct-channels__content">
           <div className="ct-channels__grid">
             {/* WhatsApp */}
-            <ScrollReveal direction="left">
+            <ScrollReveal direction="left" className="ct-card-wrapper">
               <a
                 href="https://wa.me/5585981254006"
                 target="_blank"
@@ -66,7 +66,7 @@ export default function ContatoPage() {
             </ScrollReveal>
 
             {/* Instagram */}
-            <ScrollReveal direction="right" delay={0.1}>
+            <ScrollReveal direction="right" delay={0.1} className="ct-card-wrapper">
               <a
                 href="https://www.instagram.com/triumtech_/"
                 target="_blank"
@@ -222,6 +222,10 @@ export default function ContatoPage() {
           gap: 24px;
         }
 
+        .ct-card-wrapper {
+          height: 100%;
+        }
+
         .ct-card {
           display: flex;
           flex-direction: column;
@@ -232,6 +236,7 @@ export default function ContatoPage() {
           transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
           position: relative;
           overflow: hidden;
+          height: 100%;
         }
 
         .ct-card__glow {

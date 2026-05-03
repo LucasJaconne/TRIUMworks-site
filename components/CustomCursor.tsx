@@ -87,7 +87,7 @@ export default function CustomCursor() {
           opacity: isVisible ? 1 : 0,
         }}
         animate={{
-          scale: isHovering ? 2.5 : 1,
+          scale: isHovering ? 3.5 : 1,
         }}
         transition={{ scale: { duration: 0.2 } }}
       />

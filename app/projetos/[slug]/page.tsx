@@ -1,69 +1,94 @@
 'use client';
 
-import { use } from 'react';
+import { use, useRef } from 'react';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { motion, useInView, useScroll, useTransform } from 'framer-motion';
 import { projects } from '@/data/projects';
-import DeviceMockup from '@/components/DeviceMockup';
-import ScrollReveal from '@/components/ScrollReveal';
 import { FaArrowLeft, FaArrowRight, FaExternalLinkAlt } from 'react-icons/fa';
 
-/* ---- PUZZLE LAYOUTS ---- */
+/* ---- Reveal on scroll with scale-up effect ---- */
+function ShowcaseReveal({
+  children,
+  delay = 0,
+  className = '',
+  label,
+}: {
+  children: React.ReactNode;
+  delay?: number;
+  className?: string;
+  label?: string;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true, margin: '-60px' });
 
-function LayoutA({ project }: { project: typeof projects[0] }) {
   return (
-    <div className="puzzle-grid puzzle-grid--a">
-      <ScrollReveal className="puzzle-grid__item puzzle-grid__item--main">
-        <DeviceMockup type="desktop" src={project.images.desktop[0]} alt={project.title} />
-      </ScrollReveal>
-      <ScrollReveal delay={0.15} direction="left" className="puzzle-grid__item puzzle-grid__item--left">
-        <DeviceMockup type="mobile" src={project.images.mobile[0]} alt={project.title} />
-      </ScrollReveal>
-      <ScrollReveal delay={0.25} direction="right" className="puzzle-grid__item puzzle-grid__item--right">
-        <DeviceMockup type="mobile" src={project.images.mobile[1]} alt={project.title} />
-      </ScrollReveal>
-      <ScrollReveal delay={0.2} className="puzzle-grid__item puzzle-grid__item--bottom">
-        <DeviceMockup type="desktop" src={project.images.desktop[1]} alt={project.title} />
-      </ScrollReveal>
-    </div>
+    <motion.div
+      ref={ref}
+      className={`showcase-item ${className}`}
+      initial={{ opacity: 0, y: 50, scale: 0.92 }}
+      animate={
+        isInView
+          ? { opacity: 1, y: 0, scale: 1 }
+          : { opacity: 0, y: 50, scale: 0.92 }
+      }
+      transition={{
+        duration: 0.8,
+        delay,
+        ease: [0.25, 0.46, 0.45, 0.94],
+      }}
+    >
+      <div className="showcase-item__wrap">
+        {children}
+        {label && (
+          <div className="showcase-item__overlay">
+            <span className="showcase-item__label">{label}</span>
+          </div>
+        )}
+      </div>
+    </motion.div>
   );
 }
 
-function LayoutB({ project }: { project: typeof projects[0] }) {
+/* ---- Showcase Layout (unified — no more A/B/C variants) ---- */
+function ShowcaseLayout({ project }: { project: typeof projects[0] }) {
   return (
-    <div className="puzzle-grid puzzle-grid--b">
-      <ScrollReveal className="puzzle-grid__item puzzle-grid__item--hero">
-        <DeviceMockup type="desktop" src={project.images.desktop[0]} alt={project.title} />
-      </ScrollReveal>
-      <ScrollReveal delay={0.2} direction="left" className="puzzle-grid__item puzzle-grid__item--mob1">
-        <DeviceMockup type="mobile" src={project.images.mobile[0]} alt={project.title} />
-      </ScrollReveal>
-      <ScrollReveal delay={0.3} direction="right" className="puzzle-grid__item puzzle-grid__item--mob2">
-        <DeviceMockup type="mobile" src={project.images.mobile[1]} alt={project.title} />
-      </ScrollReveal>
-      <ScrollReveal delay={0.15} className="puzzle-grid__item puzzle-grid__item--desk2">
-        <DeviceMockup type="desktop" src={project.images.desktop[1]} alt={project.title} />
-      </ScrollReveal>
-    </div>
-  );
-}
+    <div className="showcase-grid">
+      {/* Row 1: Desktop full width */}
+      <ShowcaseReveal className="showcase-grid__desktop" label="Desktop" delay={0}>
+        <img
+          src={project.images.desktop[0]}
+          alt={`${project.title} — Desktop`}
+          loading="lazy"
+        />
+      </ShowcaseReveal>
 
-function LayoutC({ project }: { project: typeof projects[0] }) {
-  return (
-    <div className="puzzle-grid puzzle-grid--c">
-      <ScrollReveal direction="left" className="puzzle-grid__item puzzle-grid__item--side-mob">
-        <DeviceMockup type="mobile" src={project.images.mobile[0]} alt={project.title} />
-      </ScrollReveal>
-      <ScrollReveal delay={0.15} className="puzzle-grid__item puzzle-grid__item--center-desk">
-        <DeviceMockup type="desktop" src={project.images.desktop[0]} alt={project.title} />
-      </ScrollReveal>
-      <ScrollReveal delay={0.25} direction="right" className="puzzle-grid__item puzzle-grid__item--side-mob2">
-        <DeviceMockup type="mobile" src={project.images.mobile[1]} alt={project.title} />
-      </ScrollReveal>
-      <ScrollReveal delay={0.2} className="puzzle-grid__item puzzle-grid__item--full-desk">
-        <DeviceMockup type="desktop" src={project.images.desktop[1]} alt={project.title} />
-      </ScrollReveal>
+      {/* Row 2: Two mobile columns */}
+      <div className="showcase-grid__mobiles">
+        <ShowcaseReveal className="showcase-grid__mobile" label="Mobile" delay={0.12}>
+          <img
+            src={project.images.mobile[0]}
+            alt={`${project.title} — Mobile`}
+            loading="lazy"
+          />
+        </ShowcaseReveal>
+        <ShowcaseReveal className="showcase-grid__mobile" label="Mobile" delay={0.24}>
+          <img
+            src={project.images.mobile[1]}
+            alt={`${project.title} — Mobile`}
+            loading="lazy"
+          />
+        </ShowcaseReveal>
+      </div>
+
+      {/* Row 3: Desktop full width */}
+      <ShowcaseReveal className="showcase-grid__desktop" label="Desktop" delay={0.1}>
+        <img
+          src={project.images.desktop[1]}
+          alt={`${project.title} — Desktop`}
+          loading="lazy"
+        />
+      </ShowcaseReveal>
     </div>
   );
 }
@@ -77,122 +102,85 @@ export default function ProjetoPage({ params }: { params: Promise<{ slug: string
   const prevProject = currentIndex > 0 ? projects[currentIndex - 1] : null;
   const nextProject = currentIndex < projects.length - 1 ? projects[currentIndex + 1] : null;
 
-  const PuzzleLayout =
-    project.layoutVariant === 'A' ? LayoutA
-    : project.layoutVariant === 'B' ? LayoutB
-    : LayoutC;
-
   return (
     <div className="projeto-page grid-bg">
-      {/* Hero */}
+      {/* ===== Hero — Centered header ===== */}
       <section className="pj-hero">
         <div
           className="pj-hero__glow"
           style={{
-            background: `radial-gradient(ellipse 60% 50% at 80% 20%, ${project.color}12 0%, transparent 70%)`,
+            background: `radial-gradient(ellipse 50% 40% at 50% 30%, ${project.color}14 0%, transparent 70%)`,
           }}
         />
 
         <div className="pj-hero__content">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
           >
-            <Link href="/#projetos" className="pj-hero__back">
-              <FaArrowLeft size={12} />
-              Voltar
+            <Link href="/projetos" className="pj-hero__back">
+              <FaArrowLeft size={11} />
+              Projetos
             </Link>
           </motion.div>
 
-          <div className="pj-hero__grid">
-            <div className="pj-hero__left">
-              <motion.span
-                className="pj-hero__number"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.2 }}
-                style={{ color: project.color }}
-              >
-                {String(currentIndex + 1).padStart(2, '0')}
-              </motion.span>
+          <motion.h1
+            className="pj-hero__title"
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.25, duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] }}
+          >
+            {project.title}
+          </motion.h1>
 
-              <motion.h1
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3, duration: 0.7 }}
-              >
-                {project.title}
-              </motion.h1>
+          <motion.p
+            className="pj-hero__desc"
+            initial={{ opacity: 0, y: 25 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4, duration: 0.6 }}
+          >
+            {project.fullDescription}
+          </motion.p>
 
-              <motion.p
-                className="pj-hero__subtitle"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-                style={{ color: project.color }}
-              >
-                {project.subtitle}
-              </motion.p>
-            </div>
+          <motion.div
+            className="pj-hero__cta"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.55, duration: 0.5 }}
+          >
+            <a
+              href={project.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="pj-hero__visit-btn"
+            >
+              Visitar site
+              <FaExternalLinkAlt size={11} />
+            </a>
+          </motion.div>
 
-            <div className="pj-hero__right">
-              <motion.p
-                className="pj-hero__desc"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 }}
-              >
-                {project.fullDescription}
-              </motion.p>
-
-              <motion.div
-                className="pj-hero__tags"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6 }}
-              >
-                {project.tags.map((tag) => (
-                  <span key={tag} className="tag">{tag}</span>
-                ))}
-              </motion.div>
-
-              <motion.div
-                className="pj-hero__actions"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.7 }}
-              >
-                <a
-                  href={project.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-primary"
-                >
-                  Visitar site
-                  <FaExternalLinkAlt size={12} />
-                </a>
-              </motion.div>
-            </div>
-          </div>
+          <motion.div
+            className="pj-hero__tags"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.65, duration: 0.5 }}
+          >
+            {project.tags.map((tag) => (
+              <span key={tag} className="tag">{tag}</span>
+            ))}
+          </motion.div>
         </div>
       </section>
 
-      {/* Mockups */}
-      <section className="pj-mockups">
-        <div className="pj-mockups__inner">
-          <ScrollReveal>
-            <div className="pj-mockups__header">
-              <span className="pj-mockups__label">Showcase</span>
-              <h2>Veja em <span className="gradient-text">ação</span></h2>
-            </div>
-          </ScrollReveal>
-
-          <PuzzleLayout project={project} />
+      {/* ===== Showcase ===== */}
+      <section className="pj-showcase">
+        <div className="pj-showcase__inner">
+          <ShowcaseLayout project={project} />
         </div>
       </section>
 
-      {/* Navigation */}
+      {/* ===== Navigation ===== */}
       <section className="pj-nav">
         <div className="pj-nav__inner">
           {prevProject ? (
@@ -222,11 +210,12 @@ export default function ProjetoPage({ params }: { params: Promise<{ slug: string
           padding-top: 100px;
         }
 
-        /* Hero — asymmetric split */
+        /* ===== HERO — Centered ===== */
         .pj-hero {
           position: relative;
           overflow: hidden;
-          padding: 60px 0 80px;
+          padding: 80px 0 60px;
+          text-align: center;
         }
 
         .pj-hero__glow {
@@ -239,179 +228,186 @@ export default function ProjetoPage({ params }: { params: Promise<{ slug: string
           position: relative;
           z-index: 1;
           padding: 0 clamp(24px, 5vw, 100px);
-          max-width: 1400px;
+          max-width: 800px;
           margin: 0 auto;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
         }
 
         .pj-hero__back {
           display: inline-flex;
           align-items: center;
           gap: 8px;
-          font-size: 0.85rem;
+          font-size: 0.8rem;
           color: var(--color-text-secondary);
-          margin-bottom: 60px;
+          margin-bottom: 48px;
           transition: color var(--transition-fast);
-        }
-
-        .pj-hero__back:hover { color: var(--color-primary); }
-
-        .pj-hero__grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 80px;
-          align-items: start;
-        }
-
-        .pj-hero__left { }
-
-        .pj-hero__number {
-          display: block;
-          font-family: var(--font-heading);
-          font-size: 1rem;
-          font-weight: 700;
-          letter-spacing: 0.15em;
-          margin-bottom: 16px;
-        }
-
-        .pj-hero__left h1 {
-          font-size: clamp(2.5rem, 5vw, 4.5rem);
-          line-height: 1.05;
-          margin-bottom: 16px;
-        }
-
-        .pj-hero__subtitle {
-          font-size: 1.1rem;
+          letter-spacing: 0.04em;
+          text-transform: uppercase;
           font-weight: 500;
         }
+        .pj-hero__back:hover { color: var(--color-primary); }
 
-        .pj-hero__right {
-          padding-top: 20px;
-          display: flex;
-          flex-direction: column;
-          gap: 24px;
+        .pj-hero__title {
+          font-size: clamp(2.8rem, 6vw, 5rem);
+          line-height: 1.05;
+          margin-bottom: 24px;
+          letter-spacing: -0.03em;
+          font-weight: 300;
         }
 
         .pj-hero__desc {
-          font-size: 1.05rem;
+          font-size: clamp(0.95rem, 1.3vw, 1.1rem);
           line-height: 1.8;
-          color: var(--color-text-body);
+          color: var(--color-text-secondary);
+          max-width: 560px;
+          margin-bottom: 32px;
+        }
+
+        .pj-hero__cta {
+          margin-bottom: 28px;
+        }
+
+        .pj-hero__visit-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 0.85rem;
+          font-weight: 500;
+          color: var(--color-text-secondary);
+          padding: 10px 24px;
+          border-radius: var(--radius-full);
+          border: 1px solid var(--color-border);
+          transition: all var(--transition-base);
+          letter-spacing: 0.02em;
+          background: transparent;
+        }
+        .pj-hero__visit-btn:hover {
+          border-color: var(--color-primary);
+          color: var(--color-primary);
+          transform: translateY(-2px);
+          box-shadow: 0 4px 20px var(--color-primary-glow);
         }
 
         .pj-hero__tags {
           display: flex;
           flex-wrap: wrap;
           gap: 8px;
+          justify-content: center;
         }
 
-        .pj-hero__actions {
-          margin-top: 8px;
+        /* ===== SHOWCASE SECTION ===== */
+        .pj-showcase {
+          padding: 40px 0 120px;
         }
 
-        /* Mockups section */
-        .pj-mockups {
-          padding: 80px 0 120px;
-        }
-
-        .pj-mockups__inner {
+        .pj-showcase__inner {
           padding: 0 clamp(24px, 5vw, 100px);
-          max-width: 1400px;
+          max-width: 1200px;
           margin: 0 auto;
         }
 
-        .pj-mockups__header {
-          margin-bottom: 60px;
+        /* ---- Showcase Grid ---- */
+        .showcase-grid {
+          display: flex;
+          flex-direction: column;
+          gap: clamp(16px, 2vw, 24px);
         }
 
-        .pj-mockups__label {
-          display: inline-block;
-          font-size: 0.85rem;
-          font-weight: 600;
-          letter-spacing: 0.15em;
-          text-transform: uppercase;
-          color: var(--color-primary);
-          margin-bottom: 12px;
-        }
-
-        .pj-mockups__header h2 {
-          font-size: clamp(1.8rem, 3vw, 2.5rem);
-        }
-
-        /* ===== PUZZLE GRIDS ===== */
-
-        /* Layout A: Desktop full → 2 mobiles + desktop below */
-        .puzzle-grid--a {
+        /* Mobiles row */
+        .showcase-grid__mobiles {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          grid-template-rows: auto auto;
-          gap: 16px;
-        }
-        .puzzle-grid--a .puzzle-grid__item--main {
-          grid-column: 1 / -1;
-        }
-        .puzzle-grid--a .puzzle-grid__item--left {
-          display: flex;
-          justify-content: center;
-          align-items: flex-start;
-        }
-        .puzzle-grid--a .puzzle-grid__item--right {
-          display: flex;
-          justify-content: center;
-          align-items: flex-start;
-        }
-        .puzzle-grid--a .puzzle-grid__item--bottom {
-          grid-column: 1 / -1;
+          gap: clamp(16px, 2vw, 24px);
         }
 
-        /* Layout B: Desktop wide → mobile + mobile → desktop */
-        .puzzle-grid--b {
-          display: grid;
-          grid-template-columns: 2fr 1fr;
-          grid-template-rows: auto auto;
-          gap: 16px;
+        /* Desktop image container */
+        .showcase-grid__desktop .showcase-item__wrap {
+          aspect-ratio: 16 / 9;
         }
-        .puzzle-grid--b .puzzle-grid__item--hero {
-          grid-column: 1 / -1;
+
+        /* Mobile image container — slightly shorter than true 9:16 */
+        .showcase-grid__mobile .showcase-item__wrap {
+          aspect-ratio: 9 / 13;
         }
-        .puzzle-grid--b .puzzle-grid__item--mob1 {
+
+        /* ---- Showcase Item ---- */
+        .showcase-item__wrap {
+          position: relative;
+          width: 100%;
+          border-radius: clamp(12px, 1.5vw, 20px);
+          overflow: hidden;
+          background: #0c0c0c;
+          border: 1px solid rgba(255, 255, 255, 0.06);
+          transition: border-color 0.4s ease, box-shadow 0.5s ease;
+        }
+
+        .showcase-item__wrap:hover {
+          border-color: rgba(255, 255, 255, 0.12);
+          box-shadow:
+            0 30px 80px rgba(0, 0, 0, 0.5),
+            0 0 0 1px rgba(255, 255, 255, 0.06);
+        }
+
+        .showcase-item__wrap img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          object-position: top center;
+          display: block;
+          transition: transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .showcase-item__wrap:hover img {
+          transform: scale(1.03);
+        }
+
+        /* Hover overlay with label */
+        .showcase-item__overlay {
+          position: absolute;
+          inset: 0;
           display: flex;
-          justify-content: flex-end;
-          align-items: flex-start;
-        }
-        .puzzle-grid--b .puzzle-grid__item--mob2 {
-          display: flex;
+          align-items: flex-end;
           justify-content: flex-start;
-          align-items: flex-start;
-        }
-        .puzzle-grid--b .puzzle-grid__item--desk2 {
-          grid-column: 1 / -1;
+          padding: clamp(16px, 2vw, 28px);
+          background: linear-gradient(
+            to top,
+            rgba(0, 0, 0, 0.65) 0%,
+            rgba(0, 0, 0, 0.15) 35%,
+            transparent 60%
+          );
+          opacity: 0;
+          transition: opacity 0.4s ease;
+          pointer-events: none;
         }
 
-        /* Layout C: mobile | desktop | mobile → desktop full */
-        .puzzle-grid--c {
-          display: grid;
-          grid-template-columns: 1fr 2.5fr 1fr;
-          grid-template-rows: auto auto;
-          gap: 16px;
+        .showcase-item__wrap:hover .showcase-item__overlay {
+          opacity: 1;
+        }
+
+        .showcase-item__label {
+          display: inline-flex;
           align-items: center;
-        }
-        .puzzle-grid--c .puzzle-grid__item--side-mob {
-          display: flex;
-          justify-content: center;
-        }
-        .puzzle-grid--c .puzzle-grid__item--center-desk { }
-        .puzzle-grid--c .puzzle-grid__item--side-mob2 {
-          display: flex;
-          justify-content: center;
-        }
-        .puzzle-grid--c .puzzle-grid__item--full-desk {
-          grid-column: 1 / -1;
+          gap: 6px;
+          font-size: 0.75rem;
+          font-weight: 600;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          color: rgba(255, 255, 255, 0.85);
+          padding: 6px 14px;
+          border-radius: var(--radius-full);
+          background: rgba(255, 255, 255, 0.08);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        /* Navigation */
+        /* ===== NAVIGATION ===== */
         .pj-nav {
           border-top: 1px solid var(--color-border);
           padding: 0 clamp(24px, 5vw, 100px);
-          max-width: 1400px;
+          max-width: 1200px;
           margin: 0 auto;
         }
 
@@ -431,57 +427,57 @@ export default function ProjetoPage({ params }: { params: Promise<{ slug: string
           border: 1px solid var(--color-border);
           transition: all var(--transition-base);
         }
-
         .pj-nav__link:hover {
           border-color: var(--color-primary);
           transform: translateY(-2px);
         }
-
         .pj-nav__link span {
           display: block;
           font-size: 0.8rem;
           color: var(--color-text-secondary);
           margin-bottom: 4px;
         }
-
         .pj-nav__link strong {
           display: block;
           font-family: var(--font-heading);
           font-size: 1.1rem;
           font-weight: 500;
         }
-
         .pj-nav__link--next { text-align: right; }
 
+        /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
-          .pj-hero__grid {
-            grid-template-columns: 1fr;
-            gap: 32px;
+          .pj-hero {
+            padding: 60px 0 40px;
+          }
+          .pj-hero__title {
+            font-size: clamp(2rem, 8vw, 3rem);
+          }
+          .pj-hero__back {
+            margin-bottom: 32px;
           }
 
-          .puzzle-grid--a,
-          .puzzle-grid--b {
-            grid-template-columns: 1fr;
-          }
-          .puzzle-grid--a .puzzle-grid__item--main,
-          .puzzle-grid--a .puzzle-grid__item--bottom,
-          .puzzle-grid--b .puzzle-grid__item--hero,
-          .puzzle-grid--b .puzzle-grid__item--desk2 {
-            grid-column: 1;
-          }
-
-          .puzzle-grid--c {
-            grid-template-columns: 1fr;
-          }
-          .puzzle-grid--c .puzzle-grid__item--full-desk {
-            grid-column: 1;
+          .showcase-grid__mobiles {
+            gap: 12px;
           }
 
           .pj-nav__inner {
             flex-direction: column;
             gap: 16px;
           }
-          .pj-nav__link { width: 100%; justify-content: center; }
+          .pj-nav__link {
+            width: 100%;
+            justify-content: center;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .showcase-grid {
+            gap: 12px;
+          }
+          .showcase-item__wrap {
+            border-radius: 12px;
+          }
         }
       `}</style>
     </div>

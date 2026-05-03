@@ -228,7 +228,8 @@ p {
   background-image:
     linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
-  background-size: 60px 60px;
+  background-size: 80px 80px;
+  background-attachment: fixed;
   pointer-events: none;
   z-index: 0;
 }

@@ -3,6 +3,7 @@ import './globals.css';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import CustomCursor from '@/components/CustomCursor';
+import SmoothScroll from '@/components/SmoothScroll';
 
 export const metadata: Metadata = {
   title: 'TriumTech — Criação de Sites Profissionais',
@@ -27,11 +28,13 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <body>
-        <CustomCursor />
-        <div className="noise-overlay" />
-        <Navbar />
-        <main>{children}</main>
-        <Footer />
+        <SmoothScroll>
+          <CustomCursor />
+          <div className="noise-overlay" />
+          <Navbar />
+          <main>{children}</main>
+          <Footer />
+        </SmoothScroll>
       </body>
     </html>
   );

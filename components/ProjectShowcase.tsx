@@ -4,100 +4,79 @@ import { useRef } from 'react';
 import Link from 'next/link';
 import { motion, useScroll, useTransform, useInView } from 'framer-motion';
 import { projects } from '@/data/projects';
-import { FaArrowRight } from 'react-icons/fa';
+import { FaArrowRight, FaExternalLinkAlt } from 'react-icons/fa';
 
 function ProjectCard({ project, index }: { project: typeof projects[0]; index: number }) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: '-60px' });
-  const isEven = index % 2 === 0;
+  const isOdd = index % 2 !== 0;
 
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ['start end', 'end start'],
   });
 
-  const imgY = useTransform(scrollYProgress, [0, 1], [60, -60]);
-  const infoY = useTransform(scrollYProgress, [0, 1], [30, -30]);
+  const imgY = useTransform(scrollYProgress, [0, 1], [30, -30]);
+  const cardY = useTransform(scrollYProgress, [0, 1], [15, -15]);
+  const rotateX = useTransform(scrollYProgress, [0, 0.35, 0.5, 0.65, 1], [40, 0, 0, 0, -40]);
+  const scale = useTransform(scrollYProgress, [0, 0.35, 0.5, 0.65, 1], [0.9, 1, 1, 1, 0.9]);
 
   return (
     <motion.div
       ref={ref}
-      className={`pcard ${isEven ? 'pcard--left' : 'pcard--right'}`}
-      initial={{ opacity: 0 }}
-      animate={isInView ? { opacity: 1 } : { opacity: 0 }}
-      transition={{ duration: 0.6 }}
+      className="pcard"
+      initial={{ opacity: 0, y: 80 }}
+      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 80 }}
+      transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
     >
-      {/* Big number background */}
-      <motion.span
-        className="pcard__bg-number"
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={isInView ? { opacity: 1, scale: 1 } : {}}
-        transition={{ duration: 1, delay: 0.1 }}
-        style={{ color: `${project.color}08` }}
-      >
-        {String(index + 1).padStart(2, '0')}
-      </motion.span>
-
-      {/* Image section */}
+      {/* Glow accent behind image */}
       <motion.div
-        className="pcard__visual"
-        initial={{ opacity: 0, x: isEven ? -100 : 100 }}
-        animate={isInView ? { opacity: 1, x: 0 } : {}}
-        transition={{ duration: 0.8, delay: 0.15, ease: [0.25, 0.46, 0.45, 0.94] }}
-      >
-        <Link href={`/projetos/${project.slug}`} className="pcard__image-link">
-          <motion.div className="pcard__image-container" style={{ y: imgY }}>
+        className="pcard__glow"
+        style={{ y: imgY, background: `radial-gradient(ellipse at center, ${project.color}10 0%, transparent 70%)` }}
+      />
+
+      {/* Perspective image wrapper */}
+      <div className="pcard__perspective-wrap">
+        <Link href={`/projetos/${project.slug}`} style={{ display: 'block', cursor: 'none' }}>
+          <motion.div 
+            className="pcard__screen" 
+            style={{ y: imgY, rotateX, scale }}
+          >
             <div
-              className="pcard__image"
+              className="pcard__screen-image"
               style={{ backgroundImage: `url(${project.images.thumbnail})` }}
             />
+            <div className="pcard__screen-shine" />
+            {/* Top edge accent line */}
+            <div className="pcard__screen-edge" style={{ background: `linear-gradient(90deg, transparent 0%, ${project.color}80 50%, transparent 100%)` }} />
           </motion.div>
-          <div className="pcard__image-overlay">
-            <span>Ver projeto <FaArrowRight size={14} /></span>
-          </div>
-          <div
-            className="pcard__image-border"
-            style={{ borderColor: `${project.color}30` }}
-          />
         </Link>
-      </motion.div>
+      </div>
 
-      {/* Info section */}
-      <motion.div className="pcard__info" style={{ y: infoY }}>
-        <motion.div
-          className="pcard__info-inner"
-          initial={{ opacity: 0, y: 40 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.7, delay: 0.3 }}
-        >
-          <div className="pcard__meta">
-            <span className="pcard__number" style={{ color: project.color }}>
-              {String(index + 1).padStart(2, '0')}
-            </span>
-            <span className="pcard__divider" />
-            <span className="pcard__category">{project.subtitle}</span>
-          </div>
-
+      {/* Info card — centered below */}
+      <motion.div
+        className="pcard__info-card"
+        style={{ y: cardY }}
+        initial={{ opacity: 0, y: 30 }}
+        animate={isInView ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.7, delay: 0.25 }}
+      >
+        <div className="pcard__info-top">
           <h3 className="pcard__title">{project.title}</h3>
-
-          <p className="pcard__description">{project.description}</p>
-
           <div className="pcard__tags">
             {project.tags.map((tag) => (
-              <span key={tag} className="tag">{tag}</span>
+              <span key={tag} className="pcard__tag">{tag}</span>
             ))}
           </div>
-
-          <div className="pcard__actions">
-            <Link href={`/projetos/${project.slug}`} className="btn-primary">
-              Explorar
-              <FaArrowRight size={12} />
-            </Link>
-            <a href={project.url} target="_blank" rel="noopener noreferrer" className="btn-outline">
-              Visitar site
-            </a>
-          </div>
-        </motion.div>
+        </div>
+        <div className="pcard__info-bottom">
+          <Link href={`/projetos/${project.slug}`} className="pcard__btn pcard__btn--explore">
+            Explorar <FaArrowRight size={10} />
+          </Link>
+          <a href={project.url} target="_blank" rel="noopener noreferrer" className="pcard__btn pcard__btn--visit">
+            Visitar site <FaExternalLinkAlt size={9} />
+          </a>
+        </div>
       </motion.div>
     </motion.div>
   );
@@ -106,36 +85,6 @@ function ProjectCard({ project, index }: { project: typeof projects[0]; index: n
 export default function ProjectShowcase() {
   return (
     <section className="projects-section grid-bg" id="projetos">
-      <div className="projects-section__header">
-        <div className="container">
-          <motion.div
-            className="projects-section__header-inner"
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-100px' }}
-            transition={{ duration: 0.7 }}
-          >
-            <div className="projects-section__header-left">
-              <span className="projects-section__label">Portfólio</span>
-              <h2>
-                Projetos que<br />
-                <span className="gradient-text">entregam resultados</span>
-              </h2>
-            </div>
-            <div className="projects-section__header-right">
-              <p>
-                Cada projeto é único — desenhado e desenvolvido sob medida para
-                alcançar os objetivos de cada cliente.
-              </p>
-              <Link href="/projetos" className="btn-outline" style={{ marginTop: '20px' }}>
-                Ver todos
-                <FaArrowRight size={12} />
-              </Link>
-            </div>
-          </motion.div>
-        </div>
-      </div>
-
       <div className="projects-section__list">
         {projects.map((project, index) => (
           <ProjectCard key={project.slug} project={project} index={index} />
@@ -144,282 +93,286 @@ export default function ProjectShowcase() {
 
       <style jsx global>{`
         .projects-section {
-          padding: 140px 0 100px;
+          padding: clamp(60px, 10vw, 120px) 0 clamp(80px, 12vw, 140px);
           position: relative;
         }
 
-        /* Header — asymmetric layout */
-        .projects-section__header {
-          margin-bottom: 120px;
-        }
-
-        .projects-section__header-inner {
-          display: grid;
-          grid-template-columns: 1.3fr 1fr;
-          gap: 60px;
-          align-items: end;
-        }
-
-        .projects-section__header-left {
-          text-align: left;
-        }
-
-        .projects-section__label {
-          display: inline-block;
-          font-size: 0.85rem;
-          font-weight: 600;
-          letter-spacing: 0.15em;
-          text-transform: uppercase;
-          color: var(--color-primary);
-          margin-bottom: 16px;
-        }
-
-        .projects-section__header-right {
-          text-align: left;
-          padding-bottom: 8px;
-        }
-
-        .projects-section__header-right p {
-          color: var(--color-text-secondary);
-          font-size: 1.05rem;
-          line-height: 1.7;
-        }
-
-        /* Project list */
         .projects-section__list {
           display: flex;
           flex-direction: column;
-          gap: 200px;
-        }
-
-        /* Project Card — full width, asymmetric */
-        .pcard {
-          position: relative;
-          display: grid;
+          gap: clamp(60px, 8vw, 100px);
           align-items: center;
-          padding: 0 clamp(24px, 5vw, 80px);
         }
 
-        .pcard--left {
-          grid-template-columns: 1.4fr 1fr;
-          gap: 80px;
+        /* ---- Project Card ---- */
+        .pcard {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          width: 100%;
+          max-width: min(1150px, 90vw, 140vh);
+          margin: 0 auto;
+          position: relative;
+          padding: 0 clamp(12px, 3vw, 40px);
         }
 
-        .pcard--right {
-          grid-template-columns: 1fr 1.4fr;
-          gap: 80px;
-        }
-
-        .pcard--right .pcard__visual {
-          order: 2;
-        }
-
-        .pcard--right .pcard__info {
-          order: 1;
-          padding-left: clamp(20px, 4vw, 80px);
-        }
-
-        .pcard--left .pcard__info {
-          padding-right: clamp(20px, 3vw, 40px);
-        }
-
-        /* Background number */
-        .pcard__bg-number {
+        /* Subtle glow behind */
+        .pcard__glow {
           position: absolute;
-          font-family: var(--font-heading);
-          font-size: clamp(12rem, 20vw, 22rem);
-          font-weight: 700;
-          line-height: 1;
+          width: 70%;
+          height: 60%;
+          top: 10%;
+          left: 15%;
+          border-radius: 50%;
+          filter: blur(80px);
           pointer-events: none;
           z-index: 0;
-          user-select: none;
+          opacity: 0.6;
         }
 
-        .pcard--left .pcard__bg-number {
-          right: 5%;
-          top: -15%;
-        }
-
-        .pcard--right .pcard__bg-number {
-          left: 5%;
-          top: -15%;
-        }
-
-        /* Image */
-        .pcard__visual {
+        /* Perspective wrapper */
+        .pcard__perspective-wrap {
+          width: 100%;
+          perspective: 1200px;
           position: relative;
           z-index: 1;
         }
 
-        .pcard__image-link {
-          display: block;
+        /* Screen with 3D tilt + rounded shape */
+        .pcard__screen {
           position: relative;
-          border-radius: var(--radius-lg);
-          overflow: hidden;
-          aspect-ratio: 16 / 11;
-        }
-
-        .pcard__image-container {
           width: 100%;
-          height: 120%;
-          position: absolute;
-          top: -10%;
+          aspect-ratio: 16 / 9;
+          border-radius: clamp(16px, 2vw, 24px);
+          overflow: hidden;
+          transition: filter 0.5s ease, box-shadow 0.5s ease;
+          box-shadow:
+            0 20px 50px rgba(0, 0, 0, 0.45),
+            0 0 0 1px rgba(255, 255, 255, 0.04),
+            inset 0 0 0 1px rgba(255, 255, 255, 0.04);
         }
 
-        .pcard__image {
+        .pcard:hover .pcard__screen {
+          filter: brightness(0.85) saturate(0.8);
+          box-shadow:
+            0 40px 100px rgba(0, 0, 0, 0.6),
+            0 0 0 1px rgba(255, 255, 255, 0.1),
+            inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+        }
+
+        .pcard__screen-image {
           width: 100%;
           height: 100%;
           background-size: cover;
-          background-position: center;
-          transition: transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+          background-position: top center;
+          transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
         }
 
-        .pcard__image-link:hover .pcard__image {
-          transform: scale(1.08);
-        }
-
-        .pcard__image-overlay {
+        /* Top edge accent */
+        .pcard__screen-edge {
           position: absolute;
-          inset: 0;
-          background: rgba(0,0,0,0.5);
-          display: flex;
-          align-items: center;
-          justify-content: center;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 3px;
+          z-index: 3;
           opacity: 0;
-          transition: opacity 0.4s ease;
-          z-index: 2;
+          transition: opacity 0.5s ease;
         }
 
-        .pcard__image-overlay span {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          font-weight: 600;
-          font-size: 1rem;
-          color: white;
-          padding: 12px 28px;
-          border: 1px solid rgba(255,255,255,0.3);
-          border-radius: var(--radius-full);
-          backdrop-filter: blur(8px);
-          transform: translateY(10px);
-          transition: transform 0.4s ease;
-        }
-
-        .pcard__image-link:hover .pcard__image-overlay {
+        .pcard:hover .pcard__screen-edge {
           opacity: 1;
         }
 
-        .pcard__image-link:hover .pcard__image-overlay span {
-          transform: translateY(0);
-        }
-
-        .pcard__image-border {
+        /* Subtle shine overlay */
+        .pcard__screen-shine {
           position: absolute;
           inset: 0;
-          border-radius: var(--radius-lg);
-          border: 1px solid transparent;
-          transition: border-color 0.4s ease;
-          z-index: 3;
+          background: linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.05) 0%,
+            transparent 35%,
+            transparent 65%,
+            rgba(255, 255, 255, 0.015) 100%
+          );
           pointer-events: none;
-        }
-
-        .pcard__image-link:hover .pcard__image-border {
-          border-color: inherit;
-        }
-
-        /* Info */
-        .pcard__info {
-          position: relative;
           z-index: 1;
         }
 
-        .pcard__info-inner {
-          display: flex;
-          flex-direction: column;
-          gap: 20px;
-        }
-
-        .pcard__meta {
+        /* ---- Info Card (centered below image) ---- */
+        .pcard__info-card {
+          position: relative;
+          z-index: 2;
+          margin-top: clamp(-44px, -6vw, -80px);
+          background: rgba(10, 10, 10, 0.82);
+          backdrop-filter: blur(24px);
+          -webkit-backdrop-filter: blur(24px);
+          border: 1px solid rgba(255, 255, 255, 0.07);
+          border-radius: clamp(12px, 1.2vw, 16px);
+          padding: clamp(20px, 4cqi, 32px) clamp(24px, 5cqi, 40px);
           display: flex;
           align-items: center;
-          gap: 12px;
+          justify-content: space-between;
+          gap: clamp(20px, 4cqi, 32px);
+          width: clamp(80%, 85%, 90%);
+          max-width: 860px;
+          container-type: inline-size;
+          transition: border-color 0.4s ease, transform 0.4s ease, box-shadow 0.4s ease;
         }
 
-        .pcard__number {
-          font-family: var(--font-heading);
-          font-size: 0.9rem;
-          font-weight: 700;
-          letter-spacing: 0.05em;
+        .pcard:hover .pcard__info-card {
+          border-color: rgba(1, 205, 174, 0.18);
+          transform: translateY(-3px);
+          box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
         }
 
-        .pcard__divider {
-          width: 32px;
-          height: 1px;
-          background: var(--color-border);
-        }
-
-        .pcard__category {
-          font-size: 0.85rem;
-          color: var(--color-text-secondary);
-          text-transform: uppercase;
-          letter-spacing: 0.08em;
-          font-weight: 500;
+        .pcard__info-top {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          flex: 1;
+          min-width: 0;
         }
 
         .pcard__title {
-          font-size: clamp(2rem, 4vw, 3.2rem);
-          font-weight: 500;
-          line-height: 1.1;
+          font-family: var(--font-heading);
+          font-size: clamp(1.2rem, 4cqi, 2.2rem);
+          font-weight: 700;
           letter-spacing: -0.02em;
-        }
-
-        .pcard__description {
-          color: var(--color-text-secondary);
-          font-size: 1rem;
-          line-height: 1.8;
-          max-width: 420px;
+          color: var(--color-text);
+          line-height: 1.2;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
 
         .pcard__tags {
           display: flex;
           flex-wrap: wrap;
-          gap: 8px;
+          gap: 5px;
         }
 
-        .pcard__actions {
+        .pcard__tag {
+          display: inline-block;
+          padding: clamp(3px, 0.5cqi, 5px) clamp(8px, 1.5cqi, 14px);
+          border-radius: var(--radius-full);
+          border: 1px solid rgba(255, 255, 255, 0.07);
+          font-size: clamp(0.65rem, 1.2cqi, 0.85rem);
+          font-family: var(--font-body);
+          font-weight: 500;
+          color: var(--color-text-secondary);
+          letter-spacing: 0.04em;
+          text-transform: uppercase;
+          transition: all var(--transition-fast);
+        }
+
+        .pcard:hover .pcard__tag {
+          border-color: rgba(1, 205, 174, 0.12);
+          color: rgba(1, 205, 174, 0.65);
+        }
+
+        .pcard__info-bottom {
           display: flex;
-          gap: 12px;
-          flex-wrap: wrap;
-          margin-top: 8px;
+          align-items: center;
+          gap: 8px;
+          flex-shrink: 0;
         }
 
-        /* Responsive */
-        @media (max-width: 1024px) {
-          .projects-section__header-inner {
-            grid-template-columns: 1fr;
-            gap: 24px;
+        .pcard__btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: clamp(10px, 1.5cqi, 14px) clamp(18px, 3cqi, 26px);
+          border-radius: var(--radius-full);
+          font-family: var(--font-body);
+          font-weight: 500;
+          font-size: clamp(0.75rem, 1.5cqi, 0.95rem);
+          transition: all var(--transition-base);
+          white-space: nowrap;
+          cursor: none;
+        }
+
+        .pcard__btn--explore {
+          background: var(--color-primary);
+          color: #000;
+          border: none;
+        }
+
+        .pcard__btn--explore:hover {
+          box-shadow: 0 4px 20px rgba(1, 205, 174, 0.3);
+          transform: translateY(-1px);
+        }
+
+        .pcard__btn--visit {
+          background: transparent;
+          color: var(--color-text-secondary);
+          border: 1px solid var(--color-border);
+        }
+
+        .pcard__btn--visit:hover {
+          border-color: var(--color-primary);
+          color: var(--color-primary);
+          transform: translateY(-1px);
+        }
+
+        /* ---- Responsive ---- */
+
+        /* Smaller desktops / laptops (19" monitors ~1366-1440px) */
+        @media (max-width: 1440px) {
+          .pcard {
+            max-width: min(900px, 85vw);
           }
-          .projects-section__header-right {
-            max-width: 500px;
+        }
+
+        @media (max-width: 1024px) {
+          .pcard {
+            max-width: min(800px, 90vw);
+          }
+
+          .pcard__info-card {
+            width: 88%;
           }
         }
 
         @media (max-width: 900px) {
-          .pcard--left,
-          .pcard--right {
-            grid-template-columns: 1fr;
-            gap: 32px;
+          .projects-section__list {
+            gap: 80px;
           }
 
-          .pcard--right .pcard__visual { order: 0; }
-          .pcard--right .pcard__info { order: 0; padding-left: 0; }
-          .pcard--left .pcard__info { padding-right: 0; }
+          .pcard__info-card {
+            flex-direction: column;
+            align-items: flex-start;
+            width: 92%;
+            gap: 14px;
+          }
 
-          .projects-section__list { gap: 100px; }
-          .pcard__bg-number { display: none; }
+          .pcard__info-bottom {
+            width: 100%;
+          }
 
-          .pcard__description {
-            max-width: 100%;
+          .pcard__btn {
+            flex: 1;
+            justify-content: center;
+          }
+
+          .pcard__title {
+            white-space: normal;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .projects-section__list {
+            gap: 60px;
+          }
+
+          .pcard__info-card {
+            width: 95%;
+            margin-top: -24px;
+            padding: 14px 18px;
+          }
+
+          .pcard__glow {
+            display: none;
           }
         }
       `}</style>
