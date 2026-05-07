@@ -256,6 +256,19 @@ export default function Navbar() {
           .navbar__hamburger {
             display: flex;
           }
+          .navbar--scrolled {
+            background: rgba(5, 5, 5, 0.92);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+          }
+          .mobile-menu {
+            background: rgba(5, 5, 5, 0.98);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+          }
+          .mobile-menu__link {
+            font-size: 2rem;
+          }
         }
       `}</style>
     </>

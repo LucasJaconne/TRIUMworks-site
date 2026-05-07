@@ -6,14 +6,17 @@ import { motion, useScroll, useTransform, useInView } from 'framer-motion';
 import { projects } from '@/data/projects';
 import { FaArrowRight, FaExternalLinkAlt } from 'react-icons/fa';
 
-function ProjectCard({ project, index }: { project: typeof projects[0]; index: number }) {
+function ProjectCard({ project }: { project: typeof projects[0] }) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: '-60px' });
   const [isMobile, setIsMobile] = useState(true); // default true to prevent hydration mismatch flashes of weird 3d
 
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
-    checkMobile(); // Check on mount
+    const checkMobile = () =>
+      setIsMobile(
+        window.innerWidth <= 768 || window.matchMedia('(pointer: coarse)').matches,
+      );
+    checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
@@ -44,9 +47,13 @@ function ProjectCard({ project, index }: { project: typeof projects[0]; index: n
 
       {/* Perspective image wrapper */}
       <div className="pcard__perspective-wrap">
-        <Link href={`/projetos/${project.slug}`} style={{ display: 'block', cursor: 'none' }}>
-          <motion.div 
-            className="pcard__screen" 
+        <Link
+          href={`/projetos/${project.slug}`}
+          data-cursor-variant="project"
+          style={{ display: 'block', cursor: 'none' }}
+        >
+          <motion.div
+            className="pcard__screen"
             style={isMobile ? {} : { y: imgY, rotateX, scale }}
           >
             <div
@@ -93,8 +100,8 @@ export default function ProjectShowcase() {
   return (
     <section className="projects-section grid-bg" id="projetos">
       <div className="projects-section__list">
-        {projects.map((project, index) => (
-          <ProjectCard key={project.slug} project={project} index={index} />
+        {projects.map((project) => (
+          <ProjectCard key={project.slug} project={project} />
         ))}
       </div>
 
@@ -159,12 +166,14 @@ export default function ProjectShowcase() {
             inset 0 0 0 1px rgba(255, 255, 255, 0.04);
         }
 
-        .pcard:hover .pcard__screen {
-          filter: brightness(0.85) saturate(0.8);
-          box-shadow:
-            0 40px 100px rgba(0, 0, 0, 0.6),
-            0 0 0 1px rgba(255, 255, 255, 0.1),
-            inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+        @media (hover: hover) {
+          .pcard:hover .pcard__screen {
+            filter: brightness(0.85) saturate(0.8);
+            box-shadow:
+              0 40px 100px rgba(0, 0, 0, 0.6),
+              0 0 0 1px rgba(255, 255, 255, 0.1),
+              inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+          }
         }
 
         .pcard__screen-image {
@@ -187,8 +196,10 @@ export default function ProjectShowcase() {
           transition: opacity 0.5s ease;
         }
 
-        .pcard:hover .pcard__screen-edge {
-          opacity: 1;
+        @media (hover: hover) {
+          .pcard:hover .pcard__screen-edge {
+            opacity: 1;
+          }
         }
 
         /* Subtle shine overlay */
@@ -227,10 +238,12 @@ export default function ProjectShowcase() {
           transition: border-color 0.4s ease, transform 0.4s ease, box-shadow 0.4s ease;
         }
 
-        .pcard:hover .pcard__info-card {
-          border-color: rgba(1, 205, 174, 0.18);
-          transform: translateY(-3px);
-          box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+        @media (hover: hover) {
+          .pcard:hover .pcard__info-card {
+            border-color: rgba(1, 205, 174, 0.18);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+          }
         }
 
         .pcard__info-top {
@@ -273,9 +286,11 @@ export default function ProjectShowcase() {
           transition: all var(--transition-fast);
         }
 
-        .pcard:hover .pcard__tag {
-          border-color: rgba(1, 205, 174, 0.12);
-          color: rgba(1, 205, 174, 0.65);
+        @media (hover: hover) {
+          .pcard:hover .pcard__tag {
+            border-color: rgba(1, 205, 174, 0.12);
+            color: rgba(1, 205, 174, 0.65);
+          }
         }
 
         .pcard__info-bottom {
@@ -364,6 +379,18 @@ export default function ProjectShowcase() {
 
           .pcard__title {
             white-space: normal;
+          }
+        }
+
+        /* Lighter blur on touch — backdrop-filter is GPU-expensive on mobile */
+        @media (hover: none), (pointer: coarse), (max-width: 768px) {
+          .pcard__info-card {
+            background: rgba(10, 10, 10, 0.94);
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+          }
+          .pcard__btn {
+            cursor: pointer;
           }
         }
 

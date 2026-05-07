@@ -1,10 +1,22 @@
 'use client';
 
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 
 export default function Hero() {
   const ref = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = useState(true);
+
+  useEffect(() => {
+    const check = () =>
+      setIsMobile(
+        window.innerWidth <= 768 || window.matchMedia('(pointer: coarse)').matches,
+      );
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ['start start', 'end start'],
@@ -32,7 +44,7 @@ export default function Hero() {
 
       <motion.div
         className="hero__content"
-        style={{ y, opacity, scale }}
+        style={isMobile ? undefined : { y, opacity, scale }}
       >
         <motion.div
           className="hero__badge"
@@ -84,7 +96,7 @@ export default function Hero() {
         className="hero__scroll-indicator"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        style={{ opacity: scrollIndicatorOpacity }}
+        style={isMobile ? undefined : { opacity: scrollIndicatorOpacity }}
         transition={{ delay: 1.2, duration: 0.6 }}
         onClick={scrollDown}
       >
@@ -166,6 +178,13 @@ export default function Hero() {
           background-attachment: fixed;
           mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
           -webkit-mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
+        }
+
+        @media (hover: none), (pointer: coarse), (max-width: 768px) {
+          .hero__grid-lines {
+            background-attachment: scroll;
+            background-size: 48px 48px;
+          }
         }
 
         .hero__content {
@@ -267,9 +286,22 @@ export default function Hero() {
           .hero__content {
             padding: 0 20px;
           }
-          .hero__gradient-orb--1 { width: 300px; height: 300px; }
+          .hero__gradient-orb {
+            filter: blur(40px);
+            animation: none;
+            opacity: 0.35;
+          }
+          .hero__gradient-orb--1 { width: 280px; height: 280px; }
           .hero__gradient-orb--2 { width: 200px; height: 200px; }
           .hero__gradient-orb--3 { display: none; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .hero__gradient-orb,
+          .hero__badge-dot,
+          .hero__mouse-wheel {
+            animation: none !important;
+          }
         }
       `}</style>
     </section>

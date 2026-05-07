@@ -235,6 +235,13 @@ p {
   z-index: 0;
 }
 
+@media (hover: none), (pointer: coarse), (max-width: 768px) {
+  .grid-bg::before {
+    background-attachment: scroll;
+    background-size: 56px 56px;
+  }
+}
+
 /* ---- Noise Texture Overlay ---- */
 .noise-overlay {
   position: fixed;
@@ -245,6 +252,11 @@ p {
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
   background-repeat: repeat;
   background-size: 256px 256px;
+}
+
+/* Skip noise overlay on touch devices — full-viewport repaint cost isn't worth it */
+@media (hover: none), (pointer: coarse), (max-width: 768px) {
+  .noise-overlay { display: none; }
 }
 
 /* ---- Custom Scrollbar ---- */
@@ -272,9 +284,21 @@ p {
 }
 
 /* ---- Mobile cursor override ---- */
-@media (pointer: coarse) {
+@media (pointer: coarse), (hover: none) {
   body, a, button {
     cursor: auto;
+  }
+}
+
+/* ---- Honor reduced motion globally ---- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
   }
 }
 

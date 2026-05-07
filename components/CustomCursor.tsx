@@ -6,6 +6,7 @@ import { motion, useSpring } from 'framer-motion';
 export default function CustomCursor() {
   const [isVisible, setIsVisible] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
+  const [isProject, setIsProject] = useState(false);
   const [isTouchDevice, setIsTouchDevice] = useState(false);
 
   // Less delay: higher stiffness + damping
@@ -17,7 +18,10 @@ export default function CustomCursor() {
   const glowY = useSpring(0, { damping: 30, stiffness: 200, mass: 0.5 });
 
   useEffect(() => {
-    if (window.matchMedia('(pointer: coarse)').matches) {
+    if (
+      window.matchMedia('(pointer: coarse)').matches ||
+      window.matchMedia('(hover: none)').matches
+    ) {
       setIsTouchDevice(true);
       return;
     }
@@ -30,30 +34,34 @@ export default function CustomCursor() {
       if (!isVisible) setIsVisible(true);
     };
 
+    const isInteractive = (target: HTMLElement) =>
+      target.tagName === 'A' ||
+      target.tagName === 'BUTTON' ||
+      target.closest('a') ||
+      target.closest('button') ||
+      target.dataset.cursorHover;
+
+    const isProjectTarget = (target: HTMLElement) =>
+      target.dataset?.cursorVariant === 'project' ||
+      !!target.closest('[data-cursor-variant="project"]');
+
     const handleMouseOver = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      if (
-        target.tagName === 'A' ||
-        target.tagName === 'BUTTON' ||
-        target.closest('a') ||
-        target.closest('button') ||
-        target.dataset.cursorHover
-      ) {
-        setIsHovering(true);
+      if (isProjectTarget(target)) {
+        setIsProject(true);
+        setIsHovering(false);
+        return;
       }
+      if (isInteractive(target)) setIsHovering(true);
     };
 
     const handleMouseOut = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      if (
-        target.tagName === 'A' ||
-        target.tagName === 'BUTTON' ||
-        target.closest('a') ||
-        target.closest('button') ||
-        target.dataset.cursorHover
-      ) {
-        setIsHovering(false);
+      if (isProjectTarget(target)) {
+        setIsProject(false);
+        return;
       }
+      if (isInteractive(target)) setIsHovering(false);
     };
 
     const handleMouseLeave = () => setIsVisible(false);
@@ -80,29 +88,29 @@ export default function CustomCursor() {
     <>
       {/* Small dot cursor */}
       <motion.div
-        className="custom-cursor"
+        className={`custom-cursor${isProject ? ' custom-cursor--project' : ''}`}
         style={{
           x: cursorX,
           y: cursorY,
           opacity: isVisible ? 1 : 0,
         }}
         animate={{
-          scale: isHovering ? 3.5 : 1,
+          scale: isProject ? 5 : isHovering ? 3.5 : 1,
         }}
-        transition={{ scale: { duration: 0.2 } }}
+        transition={{ scale: { duration: 0.25, ease: [0.22, 1, 0.36, 1] } }}
       />
 
       {/* Outer ring */}
       <motion.div
-        className="custom-cursor-ring"
+        className={`custom-cursor-ring${isProject ? ' custom-cursor-ring--project' : ''}`}
         style={{
           x: cursorX,
           y: cursorY,
           opacity: isVisible ? 1 : 0,
         }}
         animate={{
-          scale: isHovering ? 1.5 : 1,
-          opacity: isHovering ? 0 : isVisible ? 0.4 : 0,
+          scale: isProject ? 1.8 : isHovering ? 1.5 : 1,
+          opacity: isProject ? 0 : isHovering ? 0 : isVisible ? 0.4 : 0,
         }}
         transition={{ scale: { duration: 0.3 }, opacity: { duration: 0.2 } }}
       />
@@ -113,7 +121,7 @@ export default function CustomCursor() {
         style={{
           x: glowX,
           y: glowY,
-          opacity: isVisible ? 1 : 0,
+          opacity: isVisible && !isProject ? 1 : 0,
         }}
       />
 
@@ -128,6 +136,13 @@ export default function CustomCursor() {
           border-radius: 50%;
           pointer-events: none;
           z-index: var(--z-cursor);
+          transition: background-color 0.25s ease, mix-blend-mode 0s;
+        }
+
+        /* Negative-color effect over project cards */
+        .custom-cursor--project {
+          background: #ffffff;
+          mix-blend-mode: difference;
         }
 
         .custom-cursor-ring {
@@ -140,6 +155,11 @@ export default function CustomCursor() {
           border-radius: 50%;
           pointer-events: none;
           z-index: var(--z-cursor);
+        }
+
+        .custom-cursor-ring--project {
+          border-color: #ffffff;
+          mix-blend-mode: difference;
         }
 
         .custom-cursor-glow {
@@ -155,7 +175,7 @@ export default function CustomCursor() {
           will-change: transform;
         }
 
-        @media (pointer: coarse) {
+        @media (pointer: coarse), (hover: none) {
           .custom-cursor,
           .custom-cursor-ring,
           .custom-cursor-glow {

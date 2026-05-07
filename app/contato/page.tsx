@@ -114,19 +114,6 @@ export default function ContatoPage() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="ct-cta">
-        <div className="ct-cta__content">
-          <ScrollReveal>
-            <div className="ct-cta__inner">
-              <span className="ct-cta__label">Comece agora</span>
-              <h2>Cada grande projeto começa<br />com uma <span className="gradient-text">conversa</span></h2>
-              <p>Não importa o tamanho do seu projeto — estamos aqui para ajudar.</p>
-            </div>
-          </ScrollReveal>
-        </div>
-      </section>
-
       <style jsx global>{`
         .contato-page {
           padding-top: 100px;
@@ -378,40 +365,6 @@ export default function ContatoPage() {
           background: var(--color-border);
         }
 
-        /* CTA */
-        .ct-cta {
-          padding: 0 0 120px;
-        }
-
-        .ct-cta__content {
-          padding: 0 clamp(24px, 5vw, 100px);
-          max-width: 1400px;
-          margin: 0 auto;
-        }
-
-        .ct-cta__inner {
-          max-width: 600px;
-        }
-
-        .ct-cta__label {
-          display: inline-block;
-          font-size: 0.85rem;
-          font-weight: 600;
-          letter-spacing: 0.15em;
-          text-transform: uppercase;
-          color: var(--color-primary);
-          margin-bottom: 16px;
-        }
-
-        .ct-cta__inner h2 {
-          margin-bottom: 16px;
-        }
-
-        .ct-cta__inner p {
-          color: var(--color-text-secondary);
-          font-size: 1.05rem;
-        }
-
         @media (max-width: 768px) {
           .ct-hero__content {
             grid-template-columns: 1fr;
@@ -429,8 +382,16 @@ export default function ContatoPage() {
             gap: 20px;
           }
           .ct-info__separator { width: 100%; height: 1px; }
+        }
 
-          .ct-cta__inner h2 br { display: none; }
+        @media (hover: none), (pointer: coarse), (max-width: 768px) {
+          .ct-hero__orb {
+            filter: blur(40px);
+            animation: none;
+            opacity: 0.5;
+          }
+          .ct-hero__orb--1 { width: 280px; height: 280px; }
+          .ct-hero__orb--2 { display: none; }
         }
       `}</style>
     </div>

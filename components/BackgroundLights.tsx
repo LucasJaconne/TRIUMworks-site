@@ -159,6 +159,27 @@ export default function BackgroundLights() {
           40%  { transform: translate(22px, 18px) scale(1.04); }
           70%  { transform: translate(-20px, -12px) scale(0.98); }
         }
+
+        /* ---- Mobile: cut count, kill animations, shrink orbs ---- */
+        @media (hover: none), (pointer: coarse), (max-width: 768px) {
+          .bg-light {
+            animation: none !important;
+            will-change: auto;
+          }
+          .bg-light--3,
+          .bg-light--5,
+          .bg-light--6,
+          .bg-light--7 {
+            display: none;
+          }
+          .bg-light--1 { width: 480px; height: 480px; opacity: 0.7; }
+          .bg-light--2 { width: 380px; height: 380px; opacity: 0.7; }
+          .bg-light--4 { width: 420px; height: 420px; opacity: 0.7; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .bg-light { animation: none !important; }
+        }
       `}</style>
     </>
   );
