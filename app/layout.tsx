@@ -23,7 +23,7 @@ const spaceGrotesk = Space_Grotesk({
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.triumworks.com.br'),
-  title: 'TRIUM — Criação de Sites em Volta Redonda, RJ',
+  title: 'TRIUM',
   description:
     'Agência de criação de sites em Volta Redonda, RJ. Desenvolvemos sites profissionais, rápidos e estratégicos para empresas do Médio Paraíba e Sul Fluminense.',
   alternates: {
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     icon: '/images/favicon.png',
   },
   openGraph: {
-    title: 'TRIUM — Criação de Sites em Volta Redonda, RJ',
+    title: 'TRIUM',
     description:
       'Criação e desenvolvimento de sites em Volta Redonda, RJ. Sites profissionais para empresas do Médio Paraíba e de todo o Brasil.',
     type: 'website',
