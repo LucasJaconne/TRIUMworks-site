@@ -1195,7 +1195,7 @@ p {
 
 .custom-cursor--project {
   background: #ffffff;
-  mix-blend-mode: difference;
+  mix-blend-mode: exclusion;
 }
 
 .custom-cursor-ring {
@@ -1212,7 +1212,7 @@ p {
 
 .custom-cursor-ring--project {
   border-color: #ffffff;
-  mix-blend-mode: difference;
+  mix-blend-mode: exclusion;
 }
 
 .custom-cursor-glow {
